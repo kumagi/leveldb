@@ -121,7 +121,7 @@ db_bench_basho: doc/bench/db_bench_basho.o $(BASHO)/libleveldb.a $(BASHO)/$(TEST
 
 doc/bench/db_bench_basho.o: doc/bench/db_bench_basho.cc
 	$(CXX) -I$(BASHO) -I$(BASHO)/include $(CXXFLAGS) -c $< -o $@
-	
+
 db_bench_hyper: doc/bench/db_bench_hyper.o $(HYPER)/.libs/libhyperleveldb.a $(HYPER)/$(TESTUTIL)
 	$(CXX) $(LDFLAGS) doc/bench/db_bench_hyper.o $(HYPER)/.libs/libhyperleveldb.a $(HYPER)/$(TESTUTIL) -o $@ $(LIBS) -lrt
 
@@ -141,7 +141,7 @@ doc/bench/db_bench_rocksdb.o: doc/bench/db_bench_rocksdb.cc
 	$(CXX) -std=c++11 -I$(ROCKSDB) -I$(ROCKSDB)/include -DROCKSDB_PLATFORM_POSIX -DROCKSDB_ATOMIC_PRESENT -DROCKSDB_FALLOCATE_PRESENT $(CXXFLAGS) -c $< -o $@
 
 db_bench_sqlite3: doc/bench/db_bench_sqlite3.o $(LIBRARY) $(TESTUTIL)
-	$(CXX) doc/bench/db_bench_sqlite3.o $(LIBRARY) $(TESTUTIL) -o $@ $(LDFLAGS) /usr/local/lib/libsqlite3.a -ldl
+	$(CXX) doc/bench/db_bench_sqlite3.o $(LIBRARY) $(TESTUTIL) -o $@ $(LDFLAGS) -ldl bench/sqlite3/sqlite3.a
 
 db_bench_sqlo: doc/bench/db_bench_sqlo.o $(LIBRARY) $(TESTUTIL)
 	$(CXX) doc/bench/db_bench_sqlo.o $(LIBRARY) $(TESTUTIL) -o $@ $(LDFLAGS) /usr/local/lib/libsqlite3.a -ldl
@@ -149,14 +149,19 @@ db_bench_sqlo: doc/bench/db_bench_sqlo.o $(LIBRARY) $(TESTUTIL)
 db_bench_sqlm: doc/bench/db_bench_sqlo.o $(LIBRARY) $(TESTUTIL)
 	$(CXX) doc/bench/db_bench_sqlo.o $(LIBRARY) $(TESTUTIL) -o $@ $(LDFLAGS) /usr/local/lib/libsqlite3lmdb.a -ldl
 
+
+doc/bench/db_bench_tree_db.o: doc/bench/db_bench_tree_db.cc
+	$(CXX) $< -o $@ $(OPTS) $(CXXFLAGS) -I./bench/kyotocabinet -c
 db_bench_tree_db: doc/bench/db_bench_tree_db.o $(LIBRARY) $(TESTUTIL)
-	$(CXX) doc/bench/db_bench_tree_db.o $(LIBRARY) $(TESTUTIL) -o $@ $(LDFLAGS) /usr/local/lib/libkyotocabinet.a
+	$(CXX) doc/bench/db_bench_tree_db.o $(LIBRARY) $(TESTUTIL) -o $@ $(LDFLAGS) bench/kyotocabinet/libkyotocabinet.a -lz
 
 db_bench_forestdb: doc/bench/db_bench_forestdb.o $(LIBRARY) $(TESTUTIL)
 	$(CXX) doc/bench/db_bench_forestdb.o $(LIBRARY) $(TESTUTIL) -o $@ $(LDFLAGS) /usr/local/lib/libforestdb.a
 
+doc/bench/db_bench_mdb.o: doc/bench/db_bench_mdb.cc $(LIBRARY) $(TESTUTIL)
+	$(CXX) -pthread $< -o $@ $(OPTS) $(CXXFLAGS) -I./bench/lmdb/libraries/liblmdb/ -c
 db_bench_mdb: doc/bench/db_bench_mdb.o $(LIBRARY) $(TESTUTIL)
-	$(CXX) doc/bench/db_bench_mdb.o $(LIBRARY) $(TESTUTIL) -o $@ $(LDFLAGS) /usr/local/lib/liblmdb.a
+	$(CXX) -lsnappy -lpthread -pthread doc/bench/db_bench_mdb.o  $(LIBRARY) $(TESTUTIL) -o $@ $(LDFLAGS) bench/lmdb/libraries/liblmdb/liblmdb.a
 
 db_bench_bdb: doc/bench/db_bench_bdb.o $(LIBRARY) $(TESTUTIL)
 	$(CXX) doc/bench/db_bench_bdb.o $(LIBRARY) $(TESTUTIL) -o $@ $(LDFLAGS) /usr/local/lib/libdb.a
