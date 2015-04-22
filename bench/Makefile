@@ -33,5 +33,3 @@ sophia/libsophia.a:
 	git clone git@github.com:pmwkaa/sophia.git
 	cd sophia && make
 
-ntdb: ntdb.h
-
