@@ -55,9 +55,11 @@ TESTS = \
 
 PROGRAMS = db_bench leveldbutil $(TESTS)
 BENCHMARKS = db_bench db_bench_sqlite3 db_bench_tree_db db_bench_mdb \
-	db_bench_bdb db_bench_sophia db_bench_ntdb db_bench_tdb db_bench_tokudb \
+	db_bench_bdb db_bench_sophia db_bench_tokudb \
 	db_bench_basho db_bench_hyper db_bench_rocksdb db_bench_wiredtiger \
 	db_bench_mdbm
+
+#  db_bench_ntdb db_bench_tdb
 
 BASHO = ../basho_leveldb
 HYPER = ../HyperLevelDB
@@ -149,7 +151,6 @@ db_bench_sqlo: doc/bench/db_bench_sqlo.o $(LIBRARY) $(TESTUTIL)
 db_bench_sqlm: doc/bench/db_bench_sqlo.o $(LIBRARY) $(TESTUTIL)
 	$(CXX) doc/bench/db_bench_sqlo.o $(LIBRARY) $(TESTUTIL) -o $@ $(LDFLAGS) /usr/local/lib/libsqlite3lmdb.a -ldl
 
-
 doc/bench/db_bench_tree_db.o: doc/bench/db_bench_tree_db.cc
 	$(CXX) $< -o $@ $(OPTS) $(CXXFLAGS) -I./bench/kyotocabinet -c
 db_bench_tree_db: doc/bench/db_bench_tree_db.o $(LIBRARY) $(TESTUTIL)
@@ -161,13 +162,17 @@ db_bench_forestdb: doc/bench/db_bench_forestdb.o $(LIBRARY) $(TESTUTIL)
 doc/bench/db_bench_mdb.o: doc/bench/db_bench_mdb.cc $(LIBRARY) $(TESTUTIL)
 	$(CXX) -pthread $< -o $@ $(OPTS) $(CXXFLAGS) -I./bench/lmdb/libraries/liblmdb/ -c
 db_bench_mdb: doc/bench/db_bench_mdb.o $(LIBRARY) $(TESTUTIL)
-	$(CXX) -lsnappy -lpthread -pthread doc/bench/db_bench_mdb.o  $(LIBRARY) $(TESTUTIL) -o $@ $(LDFLAGS) bench/lmdb/libraries/liblmdb/liblmdb.a
+	$(CXX) -lsnappy -lpthread  doc/bench/db_bench_mdb.o  $(LIBRARY) $(TESTUTIL) -o $@ $(LDFLAGS) bench/lmdb/libraries/liblmdb/liblmdb.a /usr/lib/libpthread.a
 
+doc/bench/db_bench_bdb.o: doc/bench/db_bench_bdb.cc
+	$(CXX) $< -o $@ $(OPTS) $(LIBRARY) $(TESTUTIL) $(CXXFLAGS) -I./bench/db-6.1.19/build_unix -c
 db_bench_bdb: doc/bench/db_bench_bdb.o $(LIBRARY) $(TESTUTIL)
-	$(CXX) doc/bench/db_bench_bdb.o $(LIBRARY) $(TESTUTIL) -o $@ $(LDFLAGS) /usr/local/lib/libdb.a
+	$(CXX) doc/bench/db_bench_bdb.o $(LIBRARY) $(TESTUTIL) -o $@ $(LDFLAGS) bench/db-6.1.19/build_unix/libdb.a
 
+doc/bench/db_bench_sophia.o: doc/bench/db_bench_sophia.cc
+	$(CXX) $< -o $@ $(OPTS) $(LIBRARY) $(TESTUTIL) $(CXXFLAGS) -I./bench/sophia/db -c
 db_bench_sophia: doc/bench/db_bench_sophia.o $(LIBRARY) $(TESTUTIL)
-	$(CXX) doc/bench/db_bench_sophia.o $(LIBRARY) $(TESTUTIL) -o $@ $(LDFLAGS) /usr/local/lib/libsophia.a
+	$(CXX) doc/bench/db_bench_sophia.o $(LIBRARY) $(TESTUTIL) -o $@ $(LDFLAGS) bench/sophia/db/libsophia.a
 
 db_bench_ntdb: doc/bench/db_bench_ntdb.o $(LIBRARY) $(TESTUTIL)
 	$(CXX) doc/bench/db_bench_ntdb.o $(LIBRARY) $(TESTUTIL) -o $@ $(LDFLAGS) /usr/local/lib/libntdb.a
